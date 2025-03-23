@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -39,7 +40,10 @@ namespace Number_BaseBall
                 int answer = 0;
                 Render();
                 StringInput(Console.ReadLine(), ref answer);
+                CountCheck();
             }
+
+            End();
         }
 
         static void Init() // 게임 초기화
@@ -156,10 +160,82 @@ namespace Number_BaseBall
                 int figure = 1000;
                 for (int i = 0; i < 4; i++)
                 {
-                    answerArray[i] = answer / figure;
-                    answer -= (answerArray[i] * figure);
-                    figure /= 10;
+                    answerArray[i] = answer / figure;       // 현재 자리수 배열에 넣기
+                    answer -= (answerArray[i] * figure);    // 해당 자리수 제거
+                    figure /= 10;                           // 다음 자리수 준비
                 }
+
+                // 랜덤 배열과 정답 배열 비교
+                for (int numbersIndex = 0; numbersIndex < 4; numbersIndex++)
+                {
+                    for (int answerIndex = 0; answerIndex < 4; answerIndex++)
+                    {
+                        // 숫자가 같을 때
+                        if (numbers[numbersIndex] == answerArray[answerIndex])
+                        {
+                            // 숫자 위치가 같으면 스트라이크
+                            if (numbersIndex == answerIndex)
+                            {
+                                strikeCount++;
+                            }
+                            // 숫자 위치가 다르면 볼
+                            else
+                            {
+                                ballCount++;
+                            }
+                        }
+                    }
+                }
+                if (strikeCount == 4) // 스트라이크가 4개 == 전부 맞으면
+                {
+                    isHomeRun = true;
+                    isEnd = true;
+                    return;
+                }
+                else if (strikeCount == 0 && ballCount == 0) // 볼 스트라이크가 0개면
+                {
+                    isOut = true;
+                }
+                currentCount++;
+                PrintStrikeBall(strikeCount, ballCount);
+            }
+        }
+
+        static void End()
+        {
+            if (currentCount > 10)
+            {
+                // 카운트 초과 실패
+                PrintLose();
+            }
+            else
+            {
+                PrintHomeRun();
+            }
+        }
+
+        static void PrintHomeRun()
+        {
+            Console.WriteLine("Home Run!");
+            Console.WriteLine("승리했습니다!");
+        }
+
+        static void PrintLose()
+        {
+            Console.WriteLine("기회 초과!");
+            Console.WriteLine("패배했습니다ㅠㅠ");
+        }
+
+        static void PrintStrikeBall(int strike, int ball)
+        {
+            Console.WriteLine($"Strike : {strike}  Ball : {ball}");
+        }
+
+        static void CountCheck()
+        {
+            if (currentCount > 10)
+            {
+                isEnd = true;
             }
         }
     }
